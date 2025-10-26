@@ -1,0 +1,25 @@
+-- CreateTable
+CREATE TABLE "Lista" (
+    "id" SERIAL NOT NULL,
+    "nome" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "mes" TEXT NOT NULL,
+    "total" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "Lista_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Item" (
+    "id" SERIAL NOT NULL,
+    "listaId" INTEGER NOT NULL,
+    "nome" TEXT NOT NULL,
+    "quantidade" INTEGER NOT NULL,
+    "preco" DOUBLE PRECISION NOT NULL,
+    "subtotal" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "Item_pkey" PRIMARY KEY ("id")
+);
+
+-- AddForeignKey
+ALTER TABLE "Item" ADD CONSTRAINT "Item_listaId_fkey" FOREIGN KEY ("listaId") REFERENCES "Lista"("id") ON DELETE CASCADE ON UPDATE CASCADE;
