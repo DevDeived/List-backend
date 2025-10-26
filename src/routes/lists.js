@@ -1,0 +1,19 @@
+import express from "express";
+
+import {
+  createList,
+  getList,
+  getListById,
+  getListByMonth,
+  deleteList,
+} from "../controllers/listsController.js";
+
+const router = express.Router();
+
+router.post("/", createList);
+router.get("/", getList);
+router.get("/month/:mes", getListByMonth);
+router.get("/:id", getListById);
+router.delete("/:id", deleteList);
+
+export default router;
