@@ -1,8 +1,7 @@
 import express from "express";
-
 import {
   createList,
-  getList,
+  getLists,
   getListById,
   getListByMonth,
   deleteList,
@@ -11,7 +10,7 @@ import {
 const router = express.Router();
 
 router.post("/", createList);
-router.get("/", getList);
+router.get("/", getLists);
 router.get("/month/:mes", getListByMonth);
 router.get("/:id", getListById);
 router.delete("/:id", deleteList);

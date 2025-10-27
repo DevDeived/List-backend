@@ -1,31 +1,29 @@
-const express = require("express");
-const cors = require("cors");
-const app = express();
-const port = 3000;
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import listRouter from "./src/routes/lists.js";
 
-app.use(cors({ origin: "http://localhost:5173" }));
+dotenv.config();
+const app = express();
+
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  })
+);
+
 app.use(express.json());
 
-let tasks = [];
+app.use("/tasks", listRouter);
 
-app.get("/tasks", (req, res) => {
-  res.json(tasks);
+app.get("/", (req, res) => {
+  res.json({ status: "ok", env: process.env.NODE_ENV || "dev" });
 });
 
-app.post("/tasks", (req, res) => {
-  const task = req.body;
-  task.id = Date.now();
-  task.subtotal = task.quantidade * task.preco;
-  task.createdAt = new Date().toISOString();
-  tasks.push(task);
-  res.status(201).json(task);
-});
+// // Adicionado para teste local
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => {
+//   console.log(`Server running on http://localhost:${PORT}`);
+// });
 
-app.delete("/tasks/:id", (req, res) => {
-  tasks = tasks.filter((task) => task.id !== Number(req.params.id));
-  res.status(204).send();
-});
-
-app.listen(port, () => {
-  console.log(`Servidor rodando em http://localhost:${port}`);
-});
+export default app;

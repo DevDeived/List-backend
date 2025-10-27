@@ -4,87 +4,105 @@ const prisma = new PrismaClient();
 
 export const createList = async (req, res) => {
   try {
-    const { nome, mes, total, itens } = req.body;
-    if (!mes || typeof total !== "number" || !Array.isArray(itens)) {
+    const { nome, quantidade, preco, subtotal } = req.body;
+    if (!nome || typeof quantidade !== "number" || typeof preco !== "number" || typeof subtotal !== "number") {
       return res.status(400).json({ error: "Dados Inválidos!" });
     }
 
-    const lista = await prisma.lista.create({
-      data: {
-        nome,
-        mes,
-        total,
-        itens: {
-          create: itens.map((i) => ({
-            nome: i.nome,
-            quantidade: i.quantidade,
-            preco: i.preco,
-            subtotal: i.subtotal
-          }))
-        }
-      },
-      include: { itens: true }
+    // Criar ou encontrar a última Lista (assumindo uma Lista por mês ou uma Lista padrão)
+    let lista = await prisma.lista.findFirst({
+      orderBy: { createdAt: "desc" },
     });
 
-    return res.status(201).json(lista);
+    if (!lista) {
+      lista = await prisma.lista.create({
+        data: {
+          nome: "Lista Padrão",
+          mes: new Date().getMonth() + 1 + "", // Mês atual como string
+          total: subtotal,
+        },
+      });
+    } else {
+      // Atualizar total da lista existente
+      const newTotal = lista.total + subtotal;
+      lista = await prisma.lista.update({
+        where: { id: lista.id },
+        data: { total: newTotal },
+      });
+    }
+
+    // Criar o item associado à lista
+    const item = await prisma.item.create({
+      data: {
+        nome,
+        quantidade,
+        preco,
+        subtotal,
+        listaId: lista.id,
+      },
+    });
+
+    return res.status(201).json(item); // Retornar o item criado
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Erro ao criar lista!" });
+    return res.status(500).json({ error: "Erro ao criar item!" });
   }
 };
 
 export const getLists = async (req, res) => {
   try {
-    const listas = await prisma.lista.findMany({
-      orderBy: { createdAt: "desc" },
-      include: { itens: true }
+    const items = await prisma.item.findMany({
+      include: { lista: true },
+      orderBy: { lista: { createdAt: "desc" } },
     });
-    return res.json(listas);
+    return res.json(items);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Erro ao buscar listas!" });
+    return res.status(500).json({ error: "Erro ao buscar itens!" });
   }
 };
 
 export const getListById = async (req, res) => {
   try {
     const { id } = req.params;
-    const lista = await prisma.lista.findUnique({
+    const item = await prisma.item.findUnique({
       where: { id: Number(id) },
-      include: { itens: true }
+      include: { lista: true },
     });
-    if (!lista) return res.status(404).json({ error: "Lista não encontrada!" });
-    return res.json(lista);
+    if (!item) return res.status(404).json({ error: "Item não encontrado!" });
+    return res.json(item);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Erro ao buscar lista!" });
+    return res.status(500).json({ error: "Erro ao buscar item!" });
   }
 };
 
 export const getListByMonth = async (req, res) => {
   try {
     const { mes } = req.params;
-    const listas = await prisma.lista.findMany({
+    const items = await prisma.item.findMany({
       where: {
-        mes: { lte: mes } 
+        lista: {
+          mes: mes,
+        },
       },
-      orderBy: { createdAt: "desc" },
-      include: { itens: true }
+      include: { lista: true },
+      orderBy: { lista: { createdAt: "desc" } },
     });
-    return res.json(listas);
+    return res.json(items);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Erro ao buscar listas por mês!" });
+    return res.status(500).json({ error: "Erro ao buscar itens por mês!" });
   }
 };
 
 export const deleteList = async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.lista.delete({ where: { id: Number(id) } });
+    await prisma.item.delete({ where: { id: Number(id) } });
     return res.json({ ok: true });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Erro ao deletar lista!" });
+    return res.status(500).json({ error: "Erro ao deletar item!" });
   }
 };

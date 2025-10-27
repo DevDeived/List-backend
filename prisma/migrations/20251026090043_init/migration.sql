@@ -1,4 +1,4 @@
--- CreateTable
+
 CREATE TABLE "Lista" (
     "id" SERIAL NOT NULL,
     "nome" TEXT,
@@ -9,7 +9,6 @@ CREATE TABLE "Lista" (
     CONSTRAINT "Lista_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
 CREATE TABLE "Item" (
     "id" SERIAL NOT NULL,
     "listaId" INTEGER NOT NULL,
@@ -21,5 +20,4 @@ CREATE TABLE "Item" (
     CONSTRAINT "Item_pkey" PRIMARY KEY ("id")
 );
 
--- AddForeignKey
 ALTER TABLE "Item" ADD CONSTRAINT "Item_listaId_fkey" FOREIGN KEY ("listaId") REFERENCES "Lista"("id") ON DELETE CASCADE ON UPDATE CASCADE;
