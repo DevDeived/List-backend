@@ -20,10 +20,10 @@ app.get("/", (req, res) => {
   res.json({ status: "ok", env: process.env.NODE_ENV || "dev" });
 });
 
-// // Adicionado para teste local
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//   console.log(`Server running on http://localhost:${PORT}`);
-// });
+// Adicionado para teste local
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
 
 export default app;
