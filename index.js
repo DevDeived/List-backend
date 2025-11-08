@@ -1,30 +1,36 @@
+// src/index.js
 import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import listRouter from "./src/routes/lists.js";
+import listRouter from "./routes/lists.js";
 
-dotenv.config();
 const app = express();
 
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-  })
-);
+// CORS MANUAL (FUNCIONA NO VERCEL!)
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowed = [
+    "http://localhost:5173",
+    "https://list-frontend-git-main-devdeiveds-projects.vercel.app"
+  ];
+
+  if (allowed.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  next();
+});
 
 app.use(express.json());
 app.use("/tasks", listRouter);
 
 app.get("/", (req, res) => {
-  res.json({ status: "ok", env: process.env.NODE_ENV || "dev" });
+  res.json({ status: "API OK", time: new Date().toISOString() });
 });
-
-// ✅ Só inicia o servidor localmente, o Vercel faz isso automaticamente
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-}
 
 export default app;
