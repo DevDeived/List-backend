@@ -1,10 +1,10 @@
-// src/index.js
 import express from "express";
-import listRouter from "./routes/lists.js";
+import listRouter from "../src/routes/lists.js";
+import serverless from "serverless-http";
 
 const app = express();
 
-// CORS que NUNCA falha
+// CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
@@ -17,14 +17,8 @@ app.use(express.json());
 app.use("/tasks", listRouter);
 
 app.get("/", (req, res) => {
-  res.json({ status: "API rodando 100%!", time: new Date() });
+  res.json({ status: "API rodando!" });
 });
 
-// Porta do Vercel OU local
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`SERVIDOR RODANDO EM http://localhost:${PORT}`);
-  console.log(`Acesse: http://localhost:${PORT}/tasks`);
-});
-
-export default app;
+// 👉 ESSA PARTE É OBRIGATÓRIA PARA O VERCEL
+export default serverless(app);

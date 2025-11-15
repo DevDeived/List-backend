@@ -9,7 +9,7 @@ export const createList = async (req, res) => {
       return res.status(400).json({ error: "Dados Inválidos!" });
     }
 
-    // Criar ou encontrar a última Lista (assumindo uma Lista por mês ou uma Lista padrão)
+  
     let lista = await prisma.lista.findFirst({
       orderBy: { createdAt: "desc" },
     });
@@ -18,12 +18,12 @@ export const createList = async (req, res) => {
       lista = await prisma.lista.create({
         data: {
           nome: "Lista Padrão",
-          mes: new Date().getMonth() + 1 + "", // Mês atual como string
+          mes: new Date().getMonth() + 1 + "", 
           total: subtotal,
         },
       });
     } else {
-      // Atualizar total da lista existente
+      
       const newTotal = lista.total + subtotal;
       lista = await prisma.lista.update({
         where: { id: lista.id },
@@ -31,7 +31,6 @@ export const createList = async (req, res) => {
       });
     }
 
-    // Criar o item associado à lista
     const item = await prisma.item.create({
       data: {
         nome,
@@ -42,7 +41,7 @@ export const createList = async (req, res) => {
       },
     });
 
-    return res.status(201).json(item); // Retornar o item criado
+    return res.status(201).json(item); 
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Erro ao criar item!" });
